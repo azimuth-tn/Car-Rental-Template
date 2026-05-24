@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#070707" />
+    <meta
+      name="description"
+      content="DriveX is a premium rental car platform with cinematic vehicle browsing, concierge delivery, and instant booking."
+    />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23070707'/%3E%3Ccircle cx='32' cy='32' r='25' fill='none' stroke='%23E8C14B' stroke-width='2'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='Georgia,serif' font-size='30' font-style='italic' fill='white'%3ED%3C/text%3E%3C/svg%3E" />
+    <title>DriveX | Your next ride, elevated</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              heading: ["'Instrument Serif'", "serif"],
+              body: ["'Barlow'", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
+    <script>
+      window.FramerMotion = window.Motion;
+    </script>
+    <style>
+      :root {
+        --gold: #e8c14b;
+        --orange: #f97316;
+        --bg: #070707;
+        --white-10: rgba(255, 255, 255, 0.1);
+        --white-15: rgba(255, 255, 255, 0.15);
+        --header-offset: 104px;
+        --anchor-extra: 80px;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        background: var(--bg);
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      html::-webkit-scrollbar {
+        display: none;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        overflow-x: hidden;
+        background: var(--bg);
+        color: #fff;
+        font-family: "Barlow", sans-serif;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      body::-webkit-scrollbar {
+        display: none;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 60% 38%, rgba(232, 193, 75, 0.16), transparent 22%),
+          radial-gradient(circle at 18% 14%, rgba(249, 115, 22, 0.12), transparent 20%),
+          radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.05), transparent 35%);
+        opacity: 0.95;
+        z-index: 0;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        background-size: 72px 72px;
+        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8), transparent 92%);
+        opacity: 0.35;
+        z-index: 0;
+      }
+
+      #root {
+        position: relative;
+        z-index: 1;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .scene-section {
+        position: relative;
+        overflow: hidden;
+        min-height: 100svh;
+      }
+
+      .section-anchor {
+        scroll-margin-top: calc(var(--header-offset) - var(--anchor-extra));
+      }
+
+      .scene-shell {
+        position: relative;
+        z-index: 1;
+        width: min(1600px, calc(100% - 2rem));
+        margin-inline: auto;
+      }
+
+      .liquid-glass {
+        background: rgba(255, 255, 255, 0.01);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: none;
+        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .liquid-glass::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1.4px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.45) 0%,
+          rgba(255, 255, 255, 0.15) 20%,
+          rgba(255, 255, 255, 0) 40%,
+          rgba(255, 255, 255, 0) 60%,
+          rgba(255, 255, 255, 0.15) 80%,
+          rgba(255, 255, 255, 0.45) 100%
+        );
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      .liquid-glass-strong {
+        background: rgba(255, 255, 255, 0.01);
+        backdrop-filter: blur(50px);
+        -webkit-backdrop-filter: blur(50px);
+        border: none;
+        box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .liquid-glass-strong::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1.4px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.5) 0%,
+          rgba(255, 255, 255, 0.2) 20%,
+          rgba(255, 255, 255, 0) 40%,
+          rgba(255, 255, 255, 0) 60%,
+          rgba(255, 255, 255, 0.2) 80%,
+          rgba(255, 255, 255, 0.5) 100%
+        );
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      .shine-hover {
+        transition:
+          transform 0.25s ease,
+          border-color 0.25s ease,
+          background-color 0.25s ease,
+          box-shadow 0.25s ease;
+      }
+
+      .shine-hover:hover,
+      .shine-hover:focus-visible {
+        transform: translateY(-2px);
+        border-color: rgba(232, 193, 75, 0.35);
+        box-shadow: 0 22px 48px rgba(0, 0, 0, 0.3);
+      }
+
+      .animate-fade-up {
+        animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      .nav-in {
+        animation: nav-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      .car-float {
+        animation: float 4s ease-in-out infinite;
+      }
+
+      .glow-pulse {
+        animation: glow-pulse 4s ease-in-out infinite;
+      }
+
+      .orb-drift {
+        animation: drift 12s ease-in-out infinite;
+      }
+
+      .grid-drift {
+        animation: grid-pan 24s linear infinite;
+      }
+
+      .hero-scene {
+        background: radial-gradient(ellipse at 60% 40%, #1a1200 0%, #070707 70%);
+      }
+
+      .hero-scene::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        background-size: 76px 76px;
+        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.92), transparent 92%);
+        opacity: 0.45;
+      }
+
+      .vehicles-scene {
+        background:
+          radial-gradient(ellipse at 74% 18%, rgba(232, 193, 75, 0.1), transparent 32%),
+          radial-gradient(ellipse at 18% 82%, rgba(249, 115, 22, 0.08), transparent 28%),
+          linear-gradient(180deg, #090909 0%, #070707 46%, #050505 100%);
+      }
+
+      .vehicles-scene::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+        background-size: 96px 96px;
+        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.85), transparent 94%);
+        opacity: 0.32;
+      }
+
+      .vehicles-scene::after {
+        content: "";
+        position: absolute;
+        right: -6%;
+        top: 12%;
+        width: 560px;
+        height: 560px;
+        border-radius: 9999px;
+        background: radial-gradient(circle, rgba(232, 193, 75, 0.14), transparent 68%);
+        filter: blur(90px);
+        pointer-events: none;
+        opacity: 0.8;
+      }
+
+      .capabilities-scene {
+        background: radial-gradient(ellipse at 20% 80%, #140d00 0%, #070707 60%);
+      }
+
+      .capabilities-scene::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 18%;
+        width: 600px;
+        height: 600px;
+        border-radius: 9999px;
+        background: radial-gradient(circle, rgba(232, 193, 75, 0.18), transparent 68%);
+        filter: blur(80px);
+        transform: translateX(-55%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .social-scene {
+        background: #070707;
+      }
+
+      .social-scene::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        background-size: 32px 32px;
+        opacity: 0.65;
+      }
+
+      @keyframes fade-up {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+          filter: blur(4px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+          filter: blur(0);
+        }
+      }
+
+      @keyframes nav-in {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+          filter: blur(10px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+          filter: blur(0);
+        }
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotateX(2deg);
+        }
+
+        50% {
+          transform: translateY(-18px) rotateX(2deg);
+        }
+      }
+
+      @keyframes glow-pulse {
+        0%,
+        100% {
+          opacity: 0.5;
+          transform: translateX(-50%) scaleX(1);
+        }
+
+        50% {
+          opacity: 0.8;
+          transform: translateX(-50%) scaleX(1.1);
+        }
+      }
+
+      @keyframes drift {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+
+        50% {
+          transform: translateY(-18px);
+        }
+      }
+
+      @keyframes grid-pan {
+        0% {
+          background-position: 0 0;
+        }
+
+        100% {
+          background-position: 72px 72px;
+        }
+      }
+
+      .motion-word {
+        display: inline-block;
+        margin-right: 0.18em;
+      }
+
+      .hero-stage {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        perspective: 1200px;
+      }
+
+      .carousel-viewport {
+        position: relative;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .carousel-track {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        will-change: transform;
+        transform-style: preserve-3d;
+        backface-visibility: hidden;
+        transition: transform 0.4s ease;
+      }
+
+      .carousel-slide {
+        flex: 0 0 auto;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform-origin: center center;
+        backface-visibility: hidden;
+        will-change: transform, opacity;
+        transition:
+          transform 0.25s ease,
+          opacity 0.25s ease;
+      }
+
+      .car-stage-panel {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        isolation: isolate;
+        background:
+          radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.08), transparent 18%),
+          radial-gradient(circle at 50% 18%, rgba(232, 193, 75, 0.06), transparent 30%),
+          linear-gradient(180deg, rgba(8, 8, 8, 0.96), rgba(7, 7, 7, 0.98));
+        overflow: hidden;
+      }
+
+      .car-stage-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        background-size: 96px 96px;
+        opacity: 0.3;
+      }
+
+      .car-stage-panel::after {
+        content: "";
+        position: absolute;
+        inset: auto 10% -5% 10%;
+        height: 240px;
+        border-radius: 9999px;
+        background: radial-gradient(circle, rgba(232, 193, 75, 0.08), transparent 68%);
+        filter: blur(50px);
+        pointer-events: none;
+        opacity: 0.7;
+      }
+
+      .car-reflection {
+        mask-image: linear-gradient(180deg, rgba(255, 255, 255, 0.7), transparent);
+        -webkit-mask-image: linear-gradient(180deg, rgba(255, 255, 255, 0.7), transparent);
+      }
+
+      .thumb-active {
+        outline: 2px solid var(--gold);
+        outline-offset: 0;
+        transform: scale(1.05);
+      }
+
+      .section-title {
+        max-width: 56rem;
+      }
+
+      .section-title h2 {
+        font-family: "Instrument Serif", serif;
+        letter-spacing: -0.03em;
+        line-height: 0.9;
+      }
+
+      .section-title p,
+      .muted-copy {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .card-veil {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .tile-shell {
+        transition:
+          transform 0.25s ease,
+          border-color 0.25s ease,
+          box-shadow 0.25s ease;
+      }
+
+      .tile-shell:hover {
+        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.18);
+        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.22);
+      }
+
+      .gold-text {
+        color: var(--gold);
+      }
+
+      @media (max-width: 1023px) {
+        .desktop-pill {
+          display: none !important;
+        }
+      }
+
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-[#070707] text-white antialiased font-body">
+    <div id="root"></div>
+
+    <script type="text/babel" data-presets="env,react">
+      const { useEffect, useLayoutEffect, useMemo, useRef, useState } = React;
+      const MotionLib = window.Motion || window.FramerMotion;
+      const { motion } = MotionLib;
+
+      const CARS = [
+        {
+          id: 0,
+          name: "Porsche 911 Turbo S",
+          category: "Performance Coupe",
+          price: "$890",
+          period: "/ day",
+          specs: ["Flat-6 \u00b7 640 HP", "0\u2013100 in 2.6s", "AWD"],
+          tags: ["Coupe", "PDK", "AWD"],
+          image: "assets/cars/huracan@4x.webp",
+          glowColor: "rgba(226, 232, 240, 0.32)",
+        },
+        {
+          id: 1,
+          name: "Porsche 911 GT3 RS",
+          category: "Track Coupe",
+          price: "$620",
+          period: "/ day",
+          specs: ["Flat-6 \u00b7 518 HP", "0\u2013100 in 3.2s", "RWD"],
+          tags: ["Track", "PDK", "RWD"],
+          image: "assets/cars/gt3@4x.webp",
+          glowColor: "rgba(239, 68, 68, 0.28)",
+        },
+        {
+          id: 2,
+          name: "BMW M3 Competition",
+          category: "Sports Sedan",
+          price: "$750",
+          period: "/ day",
+          specs: ["Inline-6 \u00b7 503 HP", "0\u2013100 in 3.5s", "AWD"],
+          tags: ["Sedan", "Automatic", "5 seats"],
+          image: "assets/cars/roma@4x.webp",
+          glowColor: "rgba(34, 197, 94, 0.28)",
+        },
+        {
+          id: 3,
+          name: "Audi RS6 Avant",
+          category: "Performance Wagon",
+          price: "$980",
+          period: "/ day",
+          specs: ["V8 Bi-Turbo \u00b7 621 HP", "0\u2013100 in 3.4s", "AWD"],
+          tags: ["Wagon", "Automatic", "AWD"],
+          image: "assets/cars/720s@4x.webp",
+          glowColor: "rgba(59, 130, 246, 0.28)",
+        },
+      ];
+      const FEATURES = [
+        {
+          title: "Book in a heartbeat",
+          icon: "calendar",
+          tags: ["60-Second Reserve", "No Queue", "Instant Confirm", "Modify Free"],
+          body:
+            "Reserve any vehicle in under 60 seconds. No phone calls, no paperwork waiting — your confirmation hits your inbox the moment you tap.",
+        },
+        {
+          title: "Every car, every occasion",
+          icon: "car",
+          tags: ["340+ Models", "Daily & Weekly", "One-Way OK", "EV Options"],
+          body:
+            "From fuel-sipping city hatchbacks to V10 supercars, DriveX's curated vehicle lineup matches every mood, budget, and destination.",
+        },
+        {
+          title: "Delivered to your door",
+          icon: "pin",
+          tags: ["Door Delivery", "Airport Meet", "28 Cities", "24/7 Support"],
+          body:
+            "Skip the rental counter entirely. We deliver your car to your hotel, home, or airport gate — and collect it when you're done.",
+        },
+      ];
+
+      const TESTIMONIALS = [
+        {
+          quote:
+            "Booked a Porsche for our anniversary weekend and the whole process took literally two minutes. Car was delivered to our hotel immaculate. Will never rent any other way.",
+          name: "Sophia R.",
+          role: "Creative Director, Wunderman",
+        },
+        {
+          quote:
+            "I fly into a new city every week for work. DriveX airport delivery has saved me hours of counter queuing. The McLaren was an unexpected treat on a Friday.",
+          name: "James T.",
+          role: "VP Sales, Meridian Group",
+        },
+        {
+          quote:
+            "The lineup is genuinely impressive. We used DriveX for a client event and showed up in three matching GTs. The look on their faces was worth every penny.",
+          name: "Amara N.",
+          role: "Events Lead, Vertex Agency",
+        },
+      ];
+
+      const fmt = new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: 0,
+      });
+
+      const ArrowUpRight = () => (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M7 17L17 7M7 7h10v10" />
+        </svg>
+      );
+
+      const Play = () => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <polygon points="6 4 20 12 6 20 6 4" />
+        </svg>
+      );
+
+      const Star = () => (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
+      );
+
+      const ChevronLeft = () => (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+      );
+
+      const ChevronRight = () => (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      );
+
+      const Speedometer = () => (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path key="speed-1" d="M4 14a8 8 0 1 1 16 0" />
+          <path key="speed-2" d="M12 10l4-2" />
+          <path key="speed-3" d="M12 14h.01" />
+          <path key="speed-4" d="M7 17h10" />
+        </svg>
+      );
+
+      const GridCar = () => (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path key="grid-1" d="M4 8h6M4 16h6M14 8h6M14 16h6" />
+          <path key="grid-2" d="M10 6v12M14 6v12" />
+          <path key="grid-3" d="M9 12h6" />
+        </svg>
+      );
+
+      const LocationPin = () => (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path key="pin-1" d="M12 21s5-4.6 5-10a5 5 0 0 0-10 0c0 5.4 5 10 5 10Z" />
+          <path key="pin-2" d="M12 11.5a1.5 1.5 0 1 0 0.01 0Z" />
+        </svg>
+      );
+
+      const CalendarBolt = () => (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path key="cal-1" d="M7 3v3M17 3v3M4 8h16" />
+          <path key="cal-2" d="M5 6h14a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Z" />
+          <path key="cal-3" d="M13 11l-2.5 4H14l-1 4 3.5-5H13l0-3Z" />
+        </svg>
+      );
+
+      const useInViewOnce = (options = {}) => {
+        const ref = useRef(null);
+        const [visible, setVisible] = useState(false);
+
+        useEffect(() => {
+          const node = ref.current;
+          if (!node || visible) return;
+          if (!("IntersectionObserver" in window)) {
+            setVisible(true);
+            return;
+          }
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  setVisible(true);
+                  observer.disconnect();
+                }
+              });
+            },
+            { threshold: 0.2, rootMargin: "0px 0px -10% 0px", ...options },
+          );
+          observer.observe(node);
+          return () => observer.disconnect();
+        }, [visible, options.rootMargin, options.threshold]);
+
+        return [ref, visible];
+      };
+
+      const revealMotion = (delay = 0) => ({
+        initial: { opacity: 0, y: 20, filter: "blur(10px)" },
+        animate: { opacity: 1, y: 0, filter: "blur(0px)" },
+        transition: { duration: 0.7, ease: "easeOut", delay },
+      });
+
+      function BlurText({ as: Component = "h1", text, className = "", delay = 0.5 }) {
+        const [ref, visible] = useInViewOnce();
+        const words = useMemo(() => text.trim().split(/\s+/), [text]);
+
+        return (
+          <Component
+            ref={ref}
+            className={className}
+            aria-label={text}
+          >
+            {words.map((word, index) => (
+              <motion.span
+                key={`${word}-${index}`}
+                className="motion-word"
+                initial={{ opacity: 0, y: 50, filter: "blur(10px)" }}
+                animate={visible ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
+                transition={{
+                  duration: 0.7,
+                  ease: "easeOut",
+                  delay: delay + index * 0.1,
+                }}
+              >
+                {word}
+              </motion.span>
+            ))}
+          </Component>
+        );
+      }
+
+      function SectionReveal({ children, className = "", delay = 0 }) {
+        const [ref, visible] = useInViewOnce();
+
+        return (
+          <motion.div
+            ref={ref}
+            className={className}
+            initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
+            animate={visible ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
+            transition={{ duration: 0.7, ease: "easeOut", delay }}
+          >
+            {children}
+          </motion.div>
+        );
+      }
+
+      function Badge({ children }) {
+        return (
+          <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]">
+            {children}
+          </div>
+        );
+      }
+
+      function Navbar() {
+        return (
+          <header data-site-header className="nav-in fixed inset-x-0 top-3 z-50 px-3 sm:top-4 sm:px-6 lg:px-8">
+            <div className="mx-auto w-full max-w-[1600px] py-2 sm:py-3">
+              <div className="grid grid-cols-[1fr_auto] items-center gap-2 sm:gap-3 lg:grid-cols-[auto_1fr_auto] lg:gap-5">
+                <div className="flex items-center gap-3">
+                  <a href="#home" className="liquid-glass shine-hover flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white sm:h-12 sm:w-12">
+                    <span className="font-heading text-[1.6rem] italic leading-none">D</span>
+                  </a>
+
+                  <div className="hidden sm:block">
+                    <a href="#home" className="block font-heading text-[1.35rem] italic leading-none text-white">
+                      DriveX
+                    </a>
+                    <p className="mt-1 text-[0.66rem] uppercase tracking-[0.24em] text-white/45">
+                      Premium rental car platform
+                    </p>
+                  </div>
+                </div>
+
+                <nav aria-label="Primary navigation" className="hidden justify-center lg:flex">
+                  <div className="desktop-pill liquid-glass shine-hover flex items-center gap-1 rounded-full border border-white/10 px-2 py-2">
+                    <a href="#home" className="rounded-full px-4 py-2 text-sm text-white/75 transition hover:text-white">
+                      Home
+                    </a>
+                    <a href="#vehicles" className="rounded-full px-4 py-2 text-sm text-white/75 transition hover:text-white">
+                      Vehicles
+                    </a>
+                    <a href="#about" className="rounded-full px-4 py-2 text-sm text-white/75 transition hover:text-white">
+                      Experience
+                    </a>
+                    <a href="#locations" className="rounded-full px-4 py-2 text-sm text-white/75 transition hover:text-white">
+                      Locations
+                    </a>
+                    <a href="#contact" className="rounded-full px-4 py-2 text-sm text-white/75 transition hover:text-white">
+                      Contact
+                    </a>
+                  </div>
+                </nav>
+
+                <div className="flex items-center justify-end gap-3">
+                  <a href="#vehicles" className="liquid-glass shine-hover flex h-10 items-center rounded-full border border-white/10 px-4 text-xs text-white sm:h-12 sm:px-5 sm:text-sm">
+                    Reserve Now
+                  </a>
+                </div>
+              </div>
+
+              <div className="mt-2 lg:hidden">
+                <div className="no-scrollbar flex items-center gap-2 overflow-x-auto rounded-[1.15rem] border border-white/10 bg-white/5 px-2 py-2">
+                  <a href="#home" className="shrink-0 rounded-full px-3 py-2 text-center text-[0.6rem] uppercase tracking-[0.18em] text-white/75 transition hover:text-white">
+                    Home
+                  </a>
+                  <a href="#vehicles" className="shrink-0 rounded-full px-3 py-2 text-center text-[0.6rem] uppercase tracking-[0.18em] text-white/75 transition hover:text-white">
+                    Vehicles
+                  </a>
+                  <a href="#about" className="shrink-0 rounded-full px-3 py-2 text-center text-[0.6rem] uppercase tracking-[0.18em] text-white/75 transition hover:text-white">
+                    Experience
+                  </a>
+                  <a href="#locations" className="shrink-0 rounded-full px-3 py-2 text-center text-[0.6rem] uppercase tracking-[0.18em] text-white/75 transition hover:text-white">
+                    Locations
+                  </a>
+                  <a href="#contact" className="shrink-0 rounded-full px-3 py-2 text-center text-[0.6rem] uppercase tracking-[0.18em] text-white/75 transition hover:text-white">
+                    Contact
+                  </a>
+                </div>
+              </div>
+            </div>
+          </header>
+        );
+      }
+
+      function StatCard({ icon, value, copy }) {
+        const Icon = icon === "speed" ? Speedometer : Star;
+        return (
+          <article className="liquid-glass shine-hover flex min-h-[140px] w-full flex-col rounded-[1.25rem] p-5 text-white">
+            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-[var(--gold)]">
+              <Icon />
+            </div>
+            <div className="mt-auto">
+              <div className="text-[2.45rem] font-semibold leading-none tracking-[-0.05em]">{value}</div>
+              <p className="mt-2 max-w-[15ch] text-sm text-white/70">{copy}</p>
+            </div>
+          </article>
+        );
+      }
+
+      function CarShowcase() {
+        const [activeCar, setActiveCar] = useState(0);
+        const [direction, setDirection] = useState("right");
+        const [isTransitioning, setIsTransitioning] = useState(false);
+        const [viewportWidth, setViewportWidth] = useState(0);
+        const audioContextRef = useRef(null);
+        const lastInteractionRef = useRef(Date.now());
+        const startRef = useRef(null);
+        const timeoutRef = useRef(null);
+        const viewportRef = useRef(null);
+        const activeCarRef = useRef(0);
+        const transitionLockRef = useRef(false);
+
+        useEffect(() => {
+          activeCarRef.current = activeCar;
+        }, [activeCar]);
+
+        useEffect(() => {
+          const images = CARS.map(({ image }) => {
+            const preload = new Image();
+            preload.src = image;
+            return preload;
+          });
+
+          return () => {
+            images.length = 0;
+          };
+        }, []);
+
+        useLayoutEffect(() => {
+          const node = viewportRef.current;
+          if (!node) return undefined;
+
+          const measure = () => {
+            setViewportWidth(node.clientWidth || 0);
+          };
+
+          measure();
+
+          if (typeof ResizeObserver === "undefined") {
+            window.addEventListener("resize", measure);
+            return () => window.removeEventListener("resize", measure);
+          }
+
+          const observer = new ResizeObserver(measure);
+          observer.observe(node);
+          window.addEventListener("resize", measure);
+
+          return () => {
+            observer.disconnect();
+            window.removeEventListener("resize", measure);
+          };
+        }, []);
+
+        useEffect(() => {
+          const onKeyDown = (event) => {
+            if (event.key === "ArrowRight") {
+              event.preventDefault();
+              goByStep(1);
+            }
+
+            if (event.key === "ArrowLeft") {
+              event.preventDefault();
+              goByStep(-1);
+            }
+          };
+
+          window.addEventListener("keydown", onKeyDown);
+
+          const interval = window.setInterval(() => {
+            if (Date.now() - lastInteractionRef.current > 8000) {
+              goByStep(1);
+            }
+          }, 6000);
+
+          return () => {
+            window.removeEventListener("keydown", onKeyDown);
+            window.clearInterval(interval);
+          };
+        }, []);
+
+        useEffect(() => {
+          return () => window.clearTimeout(timeoutRef.current);
+        }, []);
+
+        useEffect(() => {
+          return () => {
+            const context = audioContextRef.current;
+            if (context && context.state !== "closed") {
+              void context.close();
+            }
+          };
+        }, []);
+
+        const playEngineSound = () => {
+          const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContextCtor) return;
+
+          let context = audioContextRef.current;
+          if (!context) {
+            context = new AudioContextCtor();
+            audioContextRef.current = context;
+          }
+
+          if (context.state === "suspended") {
+            void context.resume();
+          }
+
+          const now = context.currentTime;
+          const master = context.createGain();
+          const rumble = context.createGain();
+          const starter = context.createGain();
+          const lowpass = context.createBiquadFilter();
+          const highpass = context.createBiquadFilter();
+
+          master.gain.setValueAtTime(0.0001, now);
+          master.gain.exponentialRampToValueAtTime(0.8, now + 0.03);
+          master.gain.exponentialRampToValueAtTime(0.55, now + 0.16);
+          master.gain.exponentialRampToValueAtTime(0.0001, now + 0.92);
+          master.connect(context.destination);
+
+          lowpass.type = "lowpass";
+          lowpass.frequency.setValueAtTime(240, now);
+          lowpass.Q.setValueAtTime(0.7, now);
+          lowpass.connect(rumble);
+
+          highpass.type = "highpass";
+          highpass.frequency.setValueAtTime(42, now);
+          highpass.Q.setValueAtTime(0.7, now);
+          highpass.connect(starter);
+
+          rumble.connect(master);
+          starter.connect(master);
+
+          const revOsc = context.createOscillator();
+          revOsc.type = "sawtooth";
+          revOsc.frequency.setValueAtTime(32, now);
+          revOsc.frequency.exponentialRampToValueAtTime(58, now + 0.1);
+          revOsc.frequency.exponentialRampToValueAtTime(44, now + 0.28);
+          revOsc.frequency.exponentialRampToValueAtTime(52, now + 0.44);
+          revOsc.frequency.exponentialRampToValueAtTime(36, now + 0.82);
+
+          const toneOsc = context.createOscillator();
+          toneOsc.type = "triangle";
+          toneOsc.frequency.setValueAtTime(64, now);
+          toneOsc.frequency.exponentialRampToValueAtTime(116, now + 0.12);
+          toneOsc.frequency.exponentialRampToValueAtTime(88, now + 0.36);
+          toneOsc.frequency.exponentialRampToValueAtTime(102, now + 0.58);
+          toneOsc.frequency.exponentialRampToValueAtTime(72, now + 0.9);
+
+          const revGain = context.createGain();
+          revGain.gain.setValueAtTime(0.01, now);
+          revGain.gain.exponentialRampToValueAtTime(0.45, now + 0.06);
+          revGain.gain.exponentialRampToValueAtTime(0.28, now + 0.24);
+          revGain.gain.exponentialRampToValueAtTime(0.36, now + 0.44);
+          revGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.88);
+
+          const toneGain = context.createGain();
+          toneGain.gain.setValueAtTime(0.008, now);
+          toneGain.gain.exponentialRampToValueAtTime(0.18, now + 0.05);
+          toneGain.gain.exponentialRampToValueAtTime(0.12, now + 0.22);
+          toneGain.gain.exponentialRampToValueAtTime(0.16, now + 0.45);
+          toneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
+
+          revOsc.connect(revGain);
+          toneOsc.connect(toneGain);
+          revGain.connect(lowpass);
+          revGain.connect(highpass);
+          toneGain.connect(lowpass);
+
+          const noiseBuffer = context.createBuffer(1, context.sampleRate * 0.22, context.sampleRate);
+          const noiseData = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < noiseData.length; i += 1) {
+            noiseData[i] = (Math.random() * 2 - 1) * Math.max(0, 1 - i / noiseData.length);
+          }
+
+          const noise = context.createBufferSource();
+          noise.buffer = noiseBuffer;
+          const noiseFilter = context.createBiquadFilter();
+          noiseFilter.type = "bandpass";
+          noiseFilter.frequency.setValueAtTime(120, now);
+          noiseFilter.Q.setValueAtTime(1.4, now);
+          const noiseGain = context.createGain();
+          noiseGain.gain.setValueAtTime(0.01, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.18, now + 0.03);
+          noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+          noise.connect(noiseFilter);
+          noiseFilter.connect(noiseGain);
+          noiseGain.connect(starter);
+
+          revOsc.start(now);
+          toneOsc.start(now);
+          noise.start(now);
+          revOsc.stop(now + 0.96);
+          toneOsc.stop(now + 0.96);
+          noise.stop(now + 0.24);
+
+          window.setTimeout(() => {
+            try {
+              master.disconnect();
+            } catch {}
+            try {
+              rumble.disconnect();
+            } catch {}
+            try {
+              starter.disconnect();
+            } catch {}
+          }, 1100);
+
+          revOsc.onended = () => {
+            revOsc.disconnect();
+            revGain.disconnect();
+            lowpass.disconnect();
+            highpass.disconnect();
+          };
+
+          toneOsc.onended = () => {
+            toneOsc.disconnect();
+            toneGain.disconnect();
+          };
+
+          noise.onended = () => {
+            noise.disconnect();
+            noiseFilter.disconnect();
+            noiseGain.disconnect();
+          };
+        };
+
+        const finishTransition = () => {
+          transitionLockRef.current = false;
+          window.clearTimeout(timeoutRef.current);
+          setIsTransitioning(false);
+        };
+
+        const moveTo = (nextIndex, nextDirection) => {
+          if (transitionLockRef.current || nextIndex === activeCarRef.current) return;
+
+          lastInteractionRef.current = Date.now();
+          transitionLockRef.current = true;
+          setDirection(nextDirection);
+          activeCarRef.current = nextIndex;
+          setActiveCar(nextIndex);
+          setIsTransitioning(true);
+          window.clearTimeout(timeoutRef.current);
+          timeoutRef.current = window.setTimeout(finishTransition, 420);
+        };
+
+        const goByStep = (delta) => {
+          const current = activeCarRef.current;
+          const nextIndex = (current + delta + CARS.length) % CARS.length;
+          moveTo(nextIndex, delta > 0 ? "right" : "left");
+        };
+
+        const goTo = (index) => {
+          const current = activeCarRef.current;
+          if (index === current) return;
+
+          const forward = (index - current + CARS.length) % CARS.length;
+          const backward = (current - index + CARS.length) % CARS.length;
+          moveTo(index, forward <= backward ? "right" : "left");
+        };
+
+        const slideWidth = viewportWidth ? Math.round(viewportWidth * 0.6) : 0;
+        const slideGap = viewportWidth < 640 ? 12 : 18;
+        const stepWidth = viewportWidth ? Math.round(slideWidth * (viewportWidth < 640 ? 0.9 : 0.95) + slideGap) : 0;
+        const currentCar = CARS[activeCar];
+
+        const resolveOffset = (index) => {
+          const raw = index - activeCar;
+          let offset = raw;
+          const half = CARS.length / 2;
+
+          if (offset > half) offset -= CARS.length;
+          if (offset < -half) offset += CARS.length;
+
+          if (Math.abs(offset) === half) {
+            offset = direction === "right" ? half : -half;
+          }
+
+          return offset;
+        };
+
+        const handlePointerDown = (event) => {
+          startRef.current = { x: event.clientX, y: event.clientY };
+          lastInteractionRef.current = Date.now();
+        };
+
+        const handlePointerUp = (event) => {
+          if (!startRef.current) return;
+          const dx = event.clientX - startRef.current.x;
+          const dy = event.clientY - startRef.current.y;
+          startRef.current = null;
+
+          if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy)) {
+            goByStep(dx < 0 ? 1 : -1);
+          }
+        };
+
+        const handleCarClick = (index) => {
+          playEngineSound();
+          lastInteractionRef.current = Date.now();
+          if (index !== activeCarRef.current) {
+            goTo(index);
+          }
+        };
+
+        return (
+          <div className="hero-stage relative h-[88svh] w-full overflow-hidden sm:h-[100svh]" style={{ perspective: "1200px" }}>
+            <motion.div
+              className="car-stage-panel h-full w-full"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div
+                className="absolute inset-0 select-none"
+                style={{ touchAction: "pan-y" }}
+                onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={() => (startRef.current = null)}
+              >
+                <button
+                  type="button"
+                  aria-label="Previous car"
+                  onClick={() => goByStep(-1)}
+                  disabled={isTransitioning}
+                  className="liquid-glass shine-hover absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 text-white disabled:cursor-not-allowed disabled:opacity-60 sm:left-6 sm:h-11 sm:w-11 lg:left-10"
+                >
+                  <ChevronLeft />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next car"
+                  onClick={() => goByStep(1)}
+                  disabled={isTransitioning}
+                  className="liquid-glass shine-hover absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 text-white disabled:cursor-not-allowed disabled:opacity-60 sm:right-6 sm:h-11 sm:w-11 lg:right-10"
+                >
+                  <ChevronRight />
+                </button>
+
+                <div ref={viewportRef} className="carousel-viewport absolute inset-0">
+                  <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#070707]/80 via-[#070707]/35 to-transparent" aria-hidden="true" />
+                  <div className="absolute inset-x-[8%] top-8 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" aria-hidden="true" />
+                  <div className="absolute inset-x-[10%] bottom-[18%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" aria-hidden="true" />
+                  <div className="absolute left-1/2 top-[21%] h-52 w-[82%] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.08),transparent_68%)] blur-3xl" aria-hidden="true" />
+
+                  <div className="carousel-viewport absolute inset-0">
+                    {CARS.map((item, index) => {
+                      const offset = resolveOffset(index);
+                      const distance = Math.abs(offset);
+                      const isFocused = distance === 0;
+                      const isAdjacent = distance === 1;
+                      const opacity = isFocused ? 1 : isAdjacent ? 0.5 : 0.08;
+                      const scale = isFocused ? 1 : isAdjacent ? 0.9 : 0.86;
+
+                      return (
+                        <div
+                          key={item.id}
+                          className="carousel-slide"
+                          onClick={() => handleCarClick(index)}
+                          style={{
+                            left: "50%",
+                            top: "50%",
+                            width: slideWidth ? `${slideWidth}px` : "60%",
+                            height: "100%",
+                            position: "absolute",
+                            opacity,
+                            transform: `translate3d(-50%, -50%, 0) translate3d(${offset * stepWidth}px, 0, 0)`,
+                            transition: "transform 0.4s ease, opacity 0.4s ease",
+                            zIndex: isFocused ? 3 : isAdjacent ? 2 : 1,
+                            pointerEvents: isFocused || isAdjacent ? "auto" : "none",
+                            willChange: "transform, opacity",
+                          }}
+                        >
+                          <div className="relative flex h-full w-full items-center justify-center">
+                            <div
+                              className="pointer-events-none absolute bottom-[12%] left-1/2 h-10 w-[70%] -translate-x-1/2 rounded-full blur-3xl"
+                              style={{
+                                background: item.glowColor,
+                                opacity: isFocused ? 1 : 0.55,
+                                willChange: "transform",
+                              }}
+                              aria-hidden="true"
+                            />
+                            <div
+                              className="relative h-full w-full"
+                              style={{
+                                transform: `scale(${scale})`,
+                                transition: "transform 0.4s ease",
+                                transformStyle: "preserve-3d",
+                                willChange: "transform",
+                              }}
+                            >
+                              <div className={`relative h-full w-full ${isFocused ? "car-float" : ""}`} style={{ transformStyle: "preserve-3d" }}>
+                                <img
+                                  src={item.image}
+                                  alt={item.name}
+                                  className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_28px_70px_rgba(0,0,0,0.6)]"
+                                  draggable="false"
+                                  loading="eager"
+                                  decoding="async"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div
+                    className="glow-pulse absolute bottom-[16%] left-1/2 h-10 w-[72%] -translate-x-1/2 rounded-full blur-3xl"
+                    style={{ background: currentCar.glowColor, willChange: "transform" }}
+                    aria-hidden="true"
+                  />
+                </div>
+
+                <div className="car-reflection pointer-events-none absolute left-1/2 bottom-[21%] h-5 w-[min(78vw,980px)] -translate-x-1/2 overflow-hidden">
+                  <img
+                    src={currentCar.image}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 h-full w-full object-contain opacity-40 blur-[3px] brightness-50 scale-y-[-1]"
+                    draggable="false"
+                  />
+                </div>
+
+                <div className="absolute inset-x-0 bottom-4 z-20 px-3 sm:bottom-8 sm:px-4 md:px-8 lg:px-12">
+                  <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center">
+                    <motion.div
+                      key={activeCar}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35, ease: "easeOut" }}
+                      id="pricing"
+                      className="liquid-glass shine-hover section-anchor w-full max-w-[920px] rounded-[1.35rem] p-4 text-white sm:rounded-[1.5rem] sm:p-5"
+                    >
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                        <div>
+                          <div className="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.2em] text-white/60 sm:px-3 sm:text-xs sm:tracking-[0.24em]">
+                            {currentCar.category}
+                          </div>
+                          <h3 className="mt-2 font-heading text-2xl italic leading-none text-white sm:mt-3 sm:text-3xl md:text-[2.2rem]">
+                            {currentCar.name}
+                          </h3>
+                        </div>
+
+                        <div className="text-right">
+                          <div className="text-3xl font-medium tracking-[-0.05em] text-white sm:text-4xl">
+                            {currentCar.price}
+                            <span className="ml-1 text-sm text-white/60 sm:text-base">{currentCar.period}</span>
+                          </div>
+                          <p className="mt-1 text-xs text-white/60 sm:text-sm">Concierge delivery included</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap gap-2 sm:mt-5 sm:gap-3">
+                        {currentCar.specs.map((spec) => (
+                          <span key={spec} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80 sm:px-4 sm:py-2 sm:text-sm">
+                            {spec}
+                          </span>
+                        ))}
+                      </div>
+                    </motion.div>
+
+                    <div className="mt-3 flex w-full max-w-[920px] flex-wrap justify-center gap-2 sm:mt-4 sm:gap-3">
+                      {CARS.map((item, index) => {
+                        const active = index === activeCar;
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => {
+                              playEngineSound();
+                              lastInteractionRef.current = Date.now();
+                              goTo(index);
+                            }}
+                            className={`tile-shell relative h-16 w-[5.8rem] overflow-hidden rounded-[0.85rem] border border-white/10 bg-white/5 p-1 text-left sm:h-20 sm:w-[6.8rem] sm:p-1.5 ${active ? "thumb-active" : ""}`}
+                            aria-label={`Select ${item.name}`}
+                            aria-pressed={active}
+                          >
+                            <img
+                              src={item.image}
+                              alt=""
+                              aria-hidden="true"
+                              className="h-full w-full object-contain"
+                              draggable="false"
+                            />
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 via-black/0 to-transparent p-1.5 sm:p-2">
+                              <p className="text-[9px] uppercase tracking-[0.18em] text-white/60 sm:text-[10px] sm:tracking-[0.2em]">{item.category}</p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        );
+      }
+
+      function CapabilityIcon({ icon }) {
+        if (icon === "calendar") {
+          return <CalendarBolt />;
+        }
+        if (icon === "car") {
+          return <GridCar />;
+        }
+        return <LocationPin />;
+      }
+
+      function App() {
+        const heroDelay = (delay) => revealMotion(delay);
+
+        useLayoutEffect(() => {
+          const header = document.querySelector("[data-site-header]");
+
+          if (!header) {
+            return undefined;
+          }
+
+          const updateHeaderOffset = () => {
+            const rect = header.getBoundingClientRect();
+            const offset = Math.max(0, Math.ceil(rect.bottom + 8));
+            document.documentElement.style.setProperty("--header-offset", `${offset}px`);
+          };
+
+          updateHeaderOffset();
+
+          let observer;
+
+          if (typeof ResizeObserver !== "undefined") {
+            observer = new ResizeObserver(updateHeaderOffset);
+            observer.observe(header);
+          } else {
+            window.addEventListener("resize", updateHeaderOffset);
+          }
+
+          window.addEventListener("load", updateHeaderOffset);
+
+          return () => {
+            observer?.disconnect();
+            window.removeEventListener("resize", updateHeaderOffset);
+            window.removeEventListener("load", updateHeaderOffset);
+          };
+        }, []);
+
+        return (
+          <div className="relative bg-[#070707] text-white">
+            <Navbar />
+
+            <main>
+              <section id="home" className="hero-scene scene-section section-anchor">
+                <div className="scene-shell min-h-0 px-4 pb-8 pt-28 sm:px-6 sm:pb-10 sm:pt-32 md:px-16 lg:min-h-[100svh] lg:px-20 lg:pt-32">
+                  <div className="grid items-start gap-8 lg:min-h-[calc(100svh-8rem)] lg:grid-cols-[1.06fr_0.94fr] lg:items-center lg:gap-14">
+                    <div className="relative z-10 max-w-3xl">
+                      <motion.div {...heroDelay(0.25)} className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <Badge>
+                          <span className="inline-flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-[var(--gold)]" />
+                            <span className="text-white/80">Airport-first reservations</span>
+                          </span>
+                        </Badge>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.22em] text-white/60">
+                          Weekend ready
+                        </span>
+                      </motion.div>
+
+                      <h1 className="mt-5 font-heading text-5xl italic leading-[0.9] tracking-[-3px] text-white sm:text-6xl md:text-7xl lg:text-[5.6rem]">
+                        <BlurText
+                          as="span"
+                          text="Premium cars"
+                          delay={0.45}
+                          className="block"
+                        />
+                        <BlurText
+                          as="span"
+                          text="ready when you land"
+                          delay={0.7}
+                          className="mt-1 block text-white/90"
+                        />
+                      </h1>
+
+                      <motion.p {...heroDelay(0.95)} className="mt-4 max-w-xl text-sm font-light leading-relaxed text-white/70 md:mt-6 md:text-base">
+                        DriveX pairs airport pickups, weekend escapes, and concierge delivery with a vehicle lineup that feels curated instead of crowded. Reserve in under a minute and skip the rental counter.
+                      </motion.p>
+
+                      <motion.div {...heroDelay(1.15)} className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center md:mt-8">
+                        <a
+                          key="hero-reserve"
+                          href="#vehicles"
+                          className="liquid-glass-strong shine-hover inline-flex items-center justify-center gap-3 rounded-full border border-white/12 px-5 py-3 text-sm font-medium text-white sm:px-6 sm:py-4 sm:text-base"
+                        >
+                          Reserve Now
+                          <span className="text-[var(--gold)]">
+                            <ArrowUpRight />
+                          </span>
+                        </a>
+                        <a
+                          key="hero-collection"
+                          href="#vehicles"
+                          className="inline-flex items-center gap-2 text-sm font-medium text-white/80 transition hover:text-white"
+                        >
+                          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[var(--gold)] sm:h-9 sm:w-9">
+                            <Play />
+                          </span>
+                          Explore Vehicles
+                        </a>
+                      </motion.div>
+
+                      <motion.div {...heroDelay(1.35)} className="mt-6 grid max-w-[560px] grid-cols-3 gap-2 sm:mt-8 sm:gap-3">
+                        <div className="liquid-glass shine-hover rounded-[1.2rem] p-3 text-white sm:p-4">
+                          <div className="text-[1.55rem] font-semibold leading-none tracking-[-0.05em] sm:text-[2rem]">340+</div>
+                          <p className="mt-1.5 text-[0.65rem] leading-snug text-white/70 sm:mt-2 sm:text-sm">Vehicles across 28 cities</p>
+                        </div>
+                        <div className="liquid-glass shine-hover rounded-[1.2rem] p-3 text-white sm:p-4">
+                          <div className="text-[1.55rem] font-semibold leading-none tracking-[-0.05em] sm:text-[2rem]">4.9★</div>
+                          <p className="mt-1.5 text-[0.65rem] leading-snug text-white/70 sm:mt-2 sm:text-sm">Average rating from 18,000+ rentals</p>
+                        </div>
+                        <div className="liquid-glass shine-hover rounded-[1.2rem] p-3 text-white sm:p-4">
+                          <div className="text-[1.55rem] font-semibold leading-none tracking-[-0.05em] sm:text-[2rem]">60s</div>
+                          <p className="mt-1.5 text-[0.65rem] leading-snug text-white/70 sm:mt-2 sm:text-sm">Average time to reserve</p>
+                        </div>
+                      </motion.div>
+
+                      <motion.div {...heroDelay(1.55)} className="mt-5 flex flex-wrap gap-2 sm:mt-6 sm:gap-3">
+                        {["Airport pickup", "Weekend-ready", "Concierge delivery", "Free cancellation up to 24h"].map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.16em] text-white/65 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.18em]"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </motion.div>
+                    </div>
+
+                    <motion.div
+                      initial={{ opacity: 0, x: 40, scale: 0.96 }}
+                      animate={{ opacity: 1, x: 0, scale: 1 }}
+                      transition={{ delay: 0.8, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                      className="relative z-10"
+                    >
+                      <div className="pointer-events-none absolute -inset-10 rounded-full bg-[radial-gradient(circle,rgba(232,193,75,0.2),transparent_56%)] blur-3xl" />
+                      <div className="liquid-glass-strong relative overflow-hidden rounded-[2rem] border border-white/12 p-4 sm:rounded-[2.25rem] sm:p-5 md:p-6">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-[0.65rem] uppercase tracking-[0.22em] text-white/50 sm:text-[0.7rem] sm:tracking-[0.24em]">Reservation console</p>
+                            <h2 className="mt-1.5 font-heading text-2xl italic leading-none text-white sm:text-3xl md:text-[2.4rem]">
+                              Ready for takeoff
+                            </h2>
+                          </div>
+                          <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(232,193,75,0.18)] bg-[rgba(232,193,75,0.08)] px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.18em] text-white/80 sm:px-3 sm:text-xs sm:tracking-[0.2em]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
+                            Live inventory
+                          </span>
+                        </div>
+
+                        <div className="mt-4 space-y-2 sm:mt-6 sm:space-y-3">
+                          {[
+                            { label: "Pickup", value: "LAX Airport · Los Angeles" },
+                            { label: "Return", value: "Mon, May 26 · 10:00 AM" },
+                            { label: "Vehicle class", value: "Grand Tourer" },
+                            { label: "Delivery", value: "Meet at terminal or hotel drop-off" },
+                          ].map((field) => (
+                            <div key={field.label} className="rounded-[1rem] border border-white/10 bg-white/5 p-3 sm:rounded-[1.2rem] sm:p-4">
+                              <div className="text-[0.68rem] uppercase tracking-[0.22em] text-white/45">{field.label}</div>
+                              <div className="mt-1.5 text-sm font-medium text-white/85 sm:mt-2 md:text-base">{field.value}</div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-3 gap-2 sm:mt-5 sm:gap-3">
+                          {[
+                            { value: "340+", label: "cars available" },
+                            { value: "28", label: "cities covered" },
+                            { value: "24/7", label: "concierge support" },
+                          ].map((item) => (
+                            <div key={item.label} className="rounded-[1rem] border border-white/10 bg-white/5 p-3 sm:rounded-[1.1rem] sm:p-4">
+                              <div className="text-[1.4rem] font-semibold leading-none tracking-[-0.05em] text-white sm:text-2xl">{item.value}</div>
+                              <div className="mt-1.5 text-[0.68rem] leading-snug text-white/65 sm:mt-2 sm:text-sm">{item.label}</div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="mt-4 rounded-[1.25rem] border border-[rgba(232,193,75,0.14)] bg-[rgba(232,193,75,0.06)] p-3 sm:mt-5 sm:rounded-[1.4rem] sm:p-4">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+                            <div>
+                              <p className="text-[0.65rem] uppercase tracking-[0.2em] text-white/45 sm:text-[0.68rem] sm:tracking-[0.22em]">Estimated price</p>
+                              <div className="mt-1.5 text-3xl font-medium tracking-[-0.05em] text-white sm:mt-2 sm:text-4xl">
+                                $620<span className="text-sm text-white/60 sm:text-base">/ day</span>
+                              </div>
+                              <p className="mt-1 text-xs text-white/60 sm:text-sm">Concierge delivery included</p>
+                            </div>
+                            <a
+                              href="#contact"
+                              className="liquid-glass-strong shine-hover inline-flex items-center justify-center gap-3 rounded-full border border-white/12 px-4 py-2.5 text-sm font-medium text-white sm:px-5 sm:py-3"
+                            >
+                              Reserve Now
+                              <span className="text-[var(--gold)]">
+                                <ArrowUpRight />
+                              </span>
+                            </a>
+                          </div>
+                        </div>
+
+                        <div className="mt-3 flex flex-wrap gap-2 sm:mt-4 sm:gap-3">
+                          {["Airport handoff", "Free cancellation", "No hidden fees"].map((tag) => (
+                            <span
+                              key={tag}
+                              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.16em] text-white/65 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.18em]"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+              </section>
+
+              <div className="section-anchor h-px" aria-hidden="true" />
+
+              <section id="vehicles" className="vehicles-scene scene-section section-anchor">
+                <CarShowcase />
+              </section>
+
+              <section id="about" className="capabilities-scene scene-section section-anchor">
+                <div className="scene-shell flex min-h-0 flex-col px-4 pb-8 pt-16 sm:px-6 sm:pb-10 sm:pt-20 md:px-16 lg:min-h-[100svh] lg:px-20">
+                  <SectionReveal className="relative z-10 mb-6 text-sm uppercase tracking-[0.18em] text-white/80">
+                    // DriveX Experience
+                  </SectionReveal>
+
+                  <div className="relative z-10 flex min-h-0 flex-col lg:min-h-[calc(100svh-10rem)]">
+                    <SectionReveal>
+                      <h2 className="max-w-[8ch] font-heading text-4xl italic leading-[0.92] tracking-[-2px] text-white sm:text-5xl md:text-[6rem]">
+                        Effortless
+                        <br />
+                        Luxury
+                      </h2>
+                    </SectionReveal>
+
+                    <div className="mt-10 grid grid-cols-1 gap-4 md:mt-16 md:grid-cols-3 md:gap-6">
+                      {FEATURES.map((feature, index) => (
+                        <SectionReveal key={feature.title} delay={index * 0.1} className="h-full">
+                          <article className="liquid-glass shine-hover card-veil flex min-h-[240px] flex-col rounded-[1.25rem] p-5 sm:min-h-[320px] sm:p-6">
+                            <div className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-[var(--gold)] sm:h-11 sm:w-11">
+                              <CapabilityIcon icon={feature.icon} />
+                            </div>
+
+                            <div className="mt-4 flex flex-wrap gap-2 sm:mt-5">
+                              {feature.tags.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 text-[0.65rem] uppercase tracking-[0.12em] text-white/70 sm:px-3 sm:text-xs sm:tracking-[0.14em]"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+
+                            <h3 className="mt-5 font-heading text-2xl italic leading-none text-white sm:mt-6 sm:text-3xl">
+                              {feature.title}
+                            </h3>
+
+                            <p className="mt-3 max-w-md text-sm leading-relaxed text-white/70 sm:mt-4">
+                              {feature.body}
+                            </p>
+                          </article>
+                        </SectionReveal>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section id="locations" className="social-scene scene-section section-anchor">
+                <div id="contact" className="section-anchor h-px" aria-hidden="true" />
+                <div className="scene-shell flex min-h-0 flex-col items-center px-4 pb-10 pt-16 sm:px-6 sm:pb-14 sm:pt-20 md:px-16 lg:min-h-[100svh] lg:px-20">
+                  <SectionReveal className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80 sm:px-4 sm:py-2 sm:text-sm">
+                    Loved by drivers worldwide
+                  </SectionReveal>
+
+                  <SectionReveal delay={0.15}>
+                    <h2 className="mt-6 max-w-4xl text-center font-heading text-4xl italic leading-[0.92] tracking-[-2px] text-white sm:mt-8 sm:text-5xl md:text-[5rem]">
+                      The car you want, the moment you need it
+                    </h2>
+                  </SectionReveal>
+
+                  <SectionReveal delay={0.25} className="mt-4 max-w-2xl text-center text-sm leading-relaxed text-white/60 sm:mt-6 sm:text-base">
+                    Available in 28 cities with airport meetups, hotel delivery, and free cancellation up to 24h before pickup.
+                  </SectionReveal>
+
+                  <div className="mt-10 grid w-full grid-cols-1 gap-4 md:mt-14 md:grid-cols-3 md:gap-6">
+                    {TESTIMONIALS.map((item, index) => (
+                      <SectionReveal key={item.name} delay={index * 0.15}>
+                        <article className="liquid-glass shine-hover card-veil h-full rounded-[1.25rem] p-5 text-left sm:p-6">
+                          <p className="text-sm leading-relaxed text-white/80 sm:text-base">“{item.quote}”</p>
+                          <div className="mt-5 border-t border-white/10 pt-4 sm:mt-6">
+                            <div className="text-sm font-medium text-white">{item.name}</div>
+                            <div className="text-sm text-white/60">{item.role}</div>
+                          </div>
+                        </article>
+                      </SectionReveal>
+                    ))}
+                  </div>
+
+                  <SectionReveal delay={0.2} className="mt-10 sm:mt-14">
+                    <a
+                      href="#vehicles"
+                      className="liquid-glass-strong shine-hover inline-flex items-center gap-3 rounded-full border border-white/12 px-6 py-3 text-sm font-medium text-white sm:px-8 sm:py-4 sm:text-base"
+                    >
+                      Reserve Now
+                      <span className="text-[var(--gold)]">
+                        <ArrowUpRight />
+                      </span>
+                    </a>
+                  </SectionReveal>
+
+                  <SectionReveal delay={0.3} className="mt-3 text-center text-xs text-white/60 sm:mt-4 sm:text-sm">
+                    No credit card required to browse · Free cancellation up to 24h before
+                  </SectionReveal>
+
+                  <footer className="mt-auto w-full pt-10 sm:pt-14">
+                    <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-5 text-xs text-white/70 sm:text-sm md:flex-row">
+                      <div className="font-heading text-xl italic text-white sm:text-2xl">DriveX</div>
+                      <div>© 2026 DriveX</div>
+                      <div className="flex flex-wrap items-center justify-center gap-3 text-white/70">
+                        <a href="#vehicles" className="transition hover:text-white">
+                          Vehicles
+                        </a>
+                        <span>·</span>
+                        <a href="#about" className="transition hover:text-white">
+                          Experience
+                        </a>
+                        <span>·</span>
+                        <a href="#locations" className="transition hover:text-white">
+                          Locations
+                        </a>
+                        <span>·</span>
+                        <span>Privacy</span>
+                      </div>
+                    </div>
+                  </footer>
+                </div>
+              </section>
+            </main>
+          </div>
+        );
+      }
+
+      window.ArrowUpRight = ArrowUpRight;
+      window.Play = Play;
+      window.Star = Star;
+      window.ChevronLeft = ChevronLeft;
+      window.ChevronRight = ChevronRight;
+      window.Speedometer = Speedometer;
+      window.GridCar = GridCar;
+      window.LocationPin = LocationPin;
+      window.CalendarBolt = CalendarBolt;
+      window.BlurText = BlurText;
+      window.CarShowcase = CarShowcase;
+      window.App = App;
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>
