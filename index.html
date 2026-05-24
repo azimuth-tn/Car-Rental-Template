@@ -814,7 +814,7 @@
 
       function Navbar() {
         return (
-          <header data-site-header className="nav-in fixed inset-x-0 top-3 z-50 px-3 sm:top-4 sm:px-6 lg:px-8">
+          <header data-site-header className="nav-in fixed inset-x-0 top-0 z-50 px-3 sm:top-4 sm:px-6 lg:px-8">
             <div className="mx-auto w-full max-w-[1600px] py-2 sm:py-3">
               <div className="grid grid-cols-[1fr_auto] items-center gap-2 sm:gap-3 lg:grid-cols-[auto_1fr_auto] lg:gap-5">
                 <div className="flex items-center gap-3">
@@ -1074,6 +1074,7 @@
                   onClick={() => goByStep(-1)}
                   disabled={isTransitioning}
                   className="liquid-glass shine-hover absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 text-white disabled:cursor-not-allowed disabled:opacity-60 sm:left-6 sm:h-11 sm:w-11 lg:left-10"
+                  style={{ top: isMobileViewport ? "36%" : "50%" }}
                 >
                   <ChevronLeft />
                 </button>
@@ -1083,6 +1084,7 @@
                   onClick={() => goByStep(1)}
                   disabled={isTransitioning}
                   className="liquid-glass shine-hover absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 text-white disabled:cursor-not-allowed disabled:opacity-60 sm:right-6 sm:h-11 sm:w-11 lg:right-10"
+                  style={{ top: isMobileViewport ? "36%" : "50%" }}
                 >
                   <ChevronRight />
                 </button>
@@ -1112,7 +1114,7 @@
                           }}
                           style={{
                             left: "50%",
-                            top: isMobileViewport ? "44%" : "50%",
+                            top: isMobileViewport ? "36%" : "50%",
                             width: slideWidth ? `${slideWidth}px` : "60%",
                             height: "100%",
                             position: "absolute",
