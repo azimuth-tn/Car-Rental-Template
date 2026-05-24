@@ -903,7 +903,6 @@
         const [direction, setDirection] = useState("right");
         const [isTransitioning, setIsTransitioning] = useState(false);
         const [viewportWidth, setViewportWidth] = useState(0);
-        const audioContextRef = useRef(null);
         const lastInteractionRef = useRef(Date.now());
         const startRef = useRef(null);
         const timeoutRef = useRef(null);
@@ -983,149 +982,6 @@
           return () => window.clearTimeout(timeoutRef.current);
         }, []);
 
-        useEffect(() => {
-          return () => {
-            const context = audioContextRef.current;
-            if (context && context.state !== "closed") {
-              void context.close();
-            }
-          };
-        }, []);
-
-        const playEngineSound = () => {
-          const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-          if (!AudioContextCtor) return;
-
-          let context = audioContextRef.current;
-          if (!context) {
-            context = new AudioContextCtor();
-            audioContextRef.current = context;
-          }
-
-          if (context.state === "suspended") {
-            void context.resume();
-          }
-
-          const now = context.currentTime;
-          const master = context.createGain();
-          const rumble = context.createGain();
-          const starter = context.createGain();
-          const lowpass = context.createBiquadFilter();
-          const highpass = context.createBiquadFilter();
-
-          master.gain.setValueAtTime(0.0001, now);
-          master.gain.exponentialRampToValueAtTime(0.8, now + 0.03);
-          master.gain.exponentialRampToValueAtTime(0.55, now + 0.16);
-          master.gain.exponentialRampToValueAtTime(0.0001, now + 0.92);
-          master.connect(context.destination);
-
-          lowpass.type = "lowpass";
-          lowpass.frequency.setValueAtTime(240, now);
-          lowpass.Q.setValueAtTime(0.7, now);
-          lowpass.connect(rumble);
-
-          highpass.type = "highpass";
-          highpass.frequency.setValueAtTime(42, now);
-          highpass.Q.setValueAtTime(0.7, now);
-          highpass.connect(starter);
-
-          rumble.connect(master);
-          starter.connect(master);
-
-          const revOsc = context.createOscillator();
-          revOsc.type = "sawtooth";
-          revOsc.frequency.setValueAtTime(32, now);
-          revOsc.frequency.exponentialRampToValueAtTime(58, now + 0.1);
-          revOsc.frequency.exponentialRampToValueAtTime(44, now + 0.28);
-          revOsc.frequency.exponentialRampToValueAtTime(52, now + 0.44);
-          revOsc.frequency.exponentialRampToValueAtTime(36, now + 0.82);
-
-          const toneOsc = context.createOscillator();
-          toneOsc.type = "triangle";
-          toneOsc.frequency.setValueAtTime(64, now);
-          toneOsc.frequency.exponentialRampToValueAtTime(116, now + 0.12);
-          toneOsc.frequency.exponentialRampToValueAtTime(88, now + 0.36);
-          toneOsc.frequency.exponentialRampToValueAtTime(102, now + 0.58);
-          toneOsc.frequency.exponentialRampToValueAtTime(72, now + 0.9);
-
-          const revGain = context.createGain();
-          revGain.gain.setValueAtTime(0.01, now);
-          revGain.gain.exponentialRampToValueAtTime(0.45, now + 0.06);
-          revGain.gain.exponentialRampToValueAtTime(0.28, now + 0.24);
-          revGain.gain.exponentialRampToValueAtTime(0.36, now + 0.44);
-          revGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.88);
-
-          const toneGain = context.createGain();
-          toneGain.gain.setValueAtTime(0.008, now);
-          toneGain.gain.exponentialRampToValueAtTime(0.18, now + 0.05);
-          toneGain.gain.exponentialRampToValueAtTime(0.12, now + 0.22);
-          toneGain.gain.exponentialRampToValueAtTime(0.16, now + 0.45);
-          toneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
-
-          revOsc.connect(revGain);
-          toneOsc.connect(toneGain);
-          revGain.connect(lowpass);
-          revGain.connect(highpass);
-          toneGain.connect(lowpass);
-
-          const noiseBuffer = context.createBuffer(1, context.sampleRate * 0.22, context.sampleRate);
-          const noiseData = noiseBuffer.getChannelData(0);
-          for (let i = 0; i < noiseData.length; i += 1) {
-            noiseData[i] = (Math.random() * 2 - 1) * Math.max(0, 1 - i / noiseData.length);
-          }
-
-          const noise = context.createBufferSource();
-          noise.buffer = noiseBuffer;
-          const noiseFilter = context.createBiquadFilter();
-          noiseFilter.type = "bandpass";
-          noiseFilter.frequency.setValueAtTime(120, now);
-          noiseFilter.Q.setValueAtTime(1.4, now);
-          const noiseGain = context.createGain();
-          noiseGain.gain.setValueAtTime(0.01, now);
-          noiseGain.gain.exponentialRampToValueAtTime(0.18, now + 0.03);
-          noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
-          noise.connect(noiseFilter);
-          noiseFilter.connect(noiseGain);
-          noiseGain.connect(starter);
-
-          revOsc.start(now);
-          toneOsc.start(now);
-          noise.start(now);
-          revOsc.stop(now + 0.96);
-          toneOsc.stop(now + 0.96);
-          noise.stop(now + 0.24);
-
-          window.setTimeout(() => {
-            try {
-              master.disconnect();
-            } catch {}
-            try {
-              rumble.disconnect();
-            } catch {}
-            try {
-              starter.disconnect();
-            } catch {}
-          }, 1100);
-
-          revOsc.onended = () => {
-            revOsc.disconnect();
-            revGain.disconnect();
-            lowpass.disconnect();
-            highpass.disconnect();
-          };
-
-          toneOsc.onended = () => {
-            toneOsc.disconnect();
-            toneGain.disconnect();
-          };
-
-          noise.onended = () => {
-            noise.disconnect();
-            noiseFilter.disconnect();
-            noiseGain.disconnect();
-          };
-        };
-
         const finishTransition = () => {
           transitionLockRef.current = false;
           window.clearTimeout(timeoutRef.current);
@@ -1164,6 +1020,7 @@
         const slideGap = viewportWidth < 640 ? 12 : 18;
         const stepWidth = viewportWidth ? Math.round(slideWidth * (viewportWidth < 640 ? 0.9 : 0.95) + slideGap) : 0;
         const currentCar = CARS[activeCar];
+        const isMobileViewport = viewportWidth > 0 && viewportWidth < 640;
 
         const resolveOffset = (index) => {
           const raw = index - activeCar;
@@ -1193,14 +1050,6 @@
 
           if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy)) {
             goByStep(dx < 0 ? 1 : -1);
-          }
-        };
-
-        const handleCarClick = (index) => {
-          playEngineSound();
-          lastInteractionRef.current = Date.now();
-          if (index !== activeCarRef.current) {
-            goTo(index);
           }
         };
 
@@ -1255,12 +1104,15 @@
 
                       return (
                         <div
-                          key={item.id}
+                            key={item.id}
                           className="carousel-slide"
-                          onClick={() => handleCarClick(index)}
+                          onClick={() => {
+                            lastInteractionRef.current = Date.now();
+                            goTo(index);
+                          }}
                           style={{
                             left: "50%",
-                            top: "50%",
+                            top: isMobileViewport ? "44%" : "50%",
                             width: slideWidth ? `${slideWidth}px` : "60%",
                             height: "100%",
                             position: "absolute",
@@ -1371,7 +1223,6 @@
                             key={item.id}
                             type="button"
                             onClick={() => {
-                              playEngineSound();
                               lastInteractionRef.current = Date.now();
                               goTo(index);
                             }}
